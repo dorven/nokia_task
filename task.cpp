@@ -2,6 +2,7 @@
 #include <string>
 #include <set>
 #include <thread>
+#include <mutex>
 
 using namespace std;
 
@@ -54,12 +55,12 @@ enum States{
     INIT,
     ACTIVE,
     STOPPED,
-    ERROR,
-    RESETING
+    ERROR
 };
 
 class MonitoringSystem{
-    const unsigned int RESET_INTERVAL = 1;
+    const unsigned int PERIODIC_RESET_INTERVAL = 1;
+    std::mutex mtx; // Periodic reset can collide with user operations so we have to lock
     std::thread resetThread;
     set<Vehicle> vehicles;
     States state = INIT;
@@ -81,6 +82,7 @@ public:
     }
     template <class V>
     void Onsignal(V& vehicleSignal) {
+        mtx.lock();
         if(state == ACTIVE){
             auto found = vehicles.find(vehicleSignal);
             if(found == vehicles.end()) vehicles.insert(vehicleSignal);
@@ -89,6 +91,7 @@ public:
         else if(state == ERROR){
             errorCounter++;
         }
+        mtx.unlock();
     }
 
     void Onsignal(OperationalSignal operationalSignal) {
@@ -100,16 +103,11 @@ public:
                 if(state == ACTIVE) state = STOPPED;
                 break;
             case RESET:
-                if(state != RESETING){
-                    state = RESETING;
-                    usleep(100);
-                    errorCounter = 0;
-                    vehicles.clear();
-                    state = ACTIVE;
-                    break;
-                }
-            case RESETING:
-                cout<<"Reset is already in progress.\n";
+                mtx.lock();
+                errorCounter = 0;
+                vehicles.clear();
+                state = ACTIVE;
+                mtx.unlock();
                 break;
             default:
                 cout<<"Error: Invalid operational signal "<<(int)operationalSignal<<endl;
@@ -122,22 +120,24 @@ public:
     }
 
     string GetStatistics() {
-        if(state == RESETING) return "Currently being reseted...";
+        mtx.lock();
         string result;
         for(auto &v: vehicles){
             result+=getVehicleLine(v);
         }
+        mtx.unlock();
         return result;
     }
 
     string GetStatistics(VehicleType type) {
-        if(state == RESETING) return "Currently being reseted...";
+        mtx.lock();
         string result;
         for(auto &v: vehicles){
             if(type == v.type) {
                 result+=getVehicleLine(v);
             }
         }
+        mtx.unlock();
         return result;
     }
 
@@ -150,8 +150,8 @@ public:
         int emplasedSeconds = 0;
         while(!stopFlag){
             sleep(1);
-            if(emplasedSeconds >= RESET_INTERVAL){
-                cout << "Reseting..." << endl;
+            if(emplasedSeconds >= PERIODIC_RESET_INTERVAL){
+                cout << "Periodic reseting...\n" << endl;
                 Onsignal(Reset);
                 emplasedSeconds = 0;
             }
@@ -161,13 +161,13 @@ public:
 };
 
 int main(){
-    for(int i=0; i<1; i++){
     MonitoringSystem m;
+    for(int i=0; i<1; i++){
     m.Onsignal(Start);
     Scooter s1("ABC-001");
     m.Onsignal(s1);
-    sleep(2);
-    m.Onsignal(Reset);
+    sleep(3);
+    //m.Onsignal(Reset);
     m.Onsignal(s1);
     Car c1("ABC-001");
     m.Onsignal(c1);
