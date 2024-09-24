@@ -26,29 +26,17 @@ public:
 
 class Bicycle: public Vehicle{
 public:
-    //Bicycle(string id):Vehicle(VehicleType::BICYCLE, id){}
-    Bicycle(string id){
-        this->id=id;
-        this->type=VehicleType::BICYCLE;
-    }
+    Bicycle(string id):Vehicle(VehicleType::BICYCLE, id){}
 };
 
 class Car: public Vehicle{
 public:
-    //Car(string id):Vehicle(VehicleType::CAR, id){}
-    Car(string id){
-        this->id=id;
-        this->type=VehicleType::CAR;
-    }
+    Car(string id):Vehicle(VehicleType::CAR, id){}
 };
 
 class Scooter: public Vehicle{
 public:
-    //Scooter(string id):Vehicle(VehicleType::SCOOTER, id){}
-    Scooter(string id){
-        this->id=id;
-        this->type=VehicleType::SCOOTER;
-    }
+    Scooter(string id):Vehicle(VehicleType::SCOOTER, id){}
 };
 
 enum OperationalSignal {
@@ -78,30 +66,14 @@ class MonitoringSystem{
 public:
     template <class V>
     void Onsignal(V& vehicle_signal) {
-        Vehicle vehicle(vehicle_signal.type, vehicle_signal.id);
-        auto found = vehicles.find(vehicle);
-        if(found == vehicles.end()) vehicles.insert(vehicle);
+        auto found = vehicles.find(vehicle_signal);
+        if(found == vehicles.end()) vehicles.insert(vehicle_signal);
         else found->count++;
     }
 
     void Onsignal(OperationalSignal operational_signal) {
         cout<<"Operational signal recieved:"<< operational_signal<<endl;
     }
-
-    /*void Onsignal(Bicycle& b) {
-        Vehicle v(b.type, b.id);
-        vehicles.insert(v);
-    }
-
-    void Onsignal(Car& c){
-        Vehicle v(c.type, c.id);
-        vehicles.insert(v);
-    }
-
-    void Onsignal(Scooter& s){
-        Vehicle v(s.type, s.id);
-        vehicles.insert(v);
-    }*/
 
     string GetStatistics() {
         string result;
