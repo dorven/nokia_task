@@ -52,7 +52,6 @@ const auto Reset=OperationalSignal::RESET;
 enum States{
     INIT,
     ACTIVE,
-    STARTED,
     STOPPED,
     ERROR
 };
@@ -60,20 +59,46 @@ enum States{
 class MonitoringSystem{
     set<Vehicle> vehicles;
     States state = INIT;
-    int time_period = 60;
+    unsigned int errorCounter = 0;
+    const unsigned int timePeriod = 60;
     string getPlaceholderForCar(VehicleType type){
         return type == VehicleType::CAR ? "    ":"";
     }
 public:
     template <class V>
-    void Onsignal(V& vehicle_signal) {
-        auto found = vehicles.find(vehicle_signal);
-        if(found == vehicles.end()) vehicles.insert(vehicle_signal);
-        else found->count++;
+    void Onsignal(V& vehicleSignal) {
+        if(state == ACTIVE){
+            auto found = vehicles.find(vehicleSignal);
+            if(found == vehicles.end()) vehicles.insert(vehicleSignal);
+            else found->count++;
+        }
+        else if(state == ERROR){
+            errorCounter++;
+        }
     }
 
-    void Onsignal(OperationalSignal operational_signal) {
-        cout<<"Operational signal recieved:"<< operational_signal<<endl;
+    void Onsignal(OperationalSignal operationalSignal) {
+        cout<<"Onsignal received: "<<operationalSignal<<endl;
+        switch(operationalSignal){
+            case START:
+                if(state == INIT) state = ACTIVE;
+                break;
+            case STOP:
+                if(state == ACTIVE) state = STOPPED;
+                break;
+            case RESET:
+                state = ACTIVE;
+                errorCounter = 0;
+                vehicles.clear();
+                break;
+            default:
+                cout<<"Error: Invalid operational signal "<<(int)operationalSignal<<endl;
+                break;
+        }
+    }
+
+    void Onsignal() {
+        state = ERROR;
     }
 
     string GetStatistics() {
@@ -83,16 +108,21 @@ public:
         }
         return result;
     }
+
+    unsigned int GetErrorCount() {
+        return errorCounter;
+    }
 };
 
-//OnSignal(Reset);
-//OnSignal() -> //signals an error
 
 int main(){
     MonitoringSystem m;
+    m.Onsignal(Start);
     Scooter s1("ABC-001");
     m.Onsignal(s1);
     m.Onsignal(s1);
+    //m.Onsignal(Stop);
+    //m.Onsignal(Reset);
     Car c1("ABC-001");
     m.Onsignal(c1);
     Bicycle b1("ABC-001");
@@ -105,9 +135,7 @@ int main(){
     Bicycle b22("ABC-002");
     m.Onsignal(b22);
     cout<<m.GetStatistics()<<endl;
-    m.Onsignal(Reset);
-    m.Onsignal(Start);
-    m.Onsignal(Stop);
+    cout<<"Error count: "<<m.GetErrorCount()<<endl;
 
     return 0;
 }
