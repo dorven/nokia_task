@@ -64,6 +64,9 @@ class MonitoringSystem{
     string getPlaceholderForCar(VehicleType type){
         return type == VehicleType::CAR ? "    ":"";
     }
+    string getVehicleLine(auto v){
+        return v.id + " - " + VehicleTypeStrings[(int)v.type] + getPlaceholderForCar(v.type) + " (" + to_string(v.count) + ")\n";
+    }
 public:
     template <class V>
     void Onsignal(V& vehicleSignal) {
@@ -104,7 +107,17 @@ public:
     string GetStatistics() {
         string result;
         for(auto &v: vehicles){
-            result+=v.id + " - " + VehicleTypeStrings[(int)v.type] + getPlaceholderForCar(v.type) + " (" + to_string(v.count) + ")\n";
+            result+=getVehicleLine(v);
+        }
+        return result;
+    }
+
+    string GetStatistics(VehicleType type) {
+        string result;
+        for(auto &v: vehicles){
+            if(type == v.type) {
+                result+=getVehicleLine(v);
+            }
         }
         return result;
     }
@@ -135,6 +148,7 @@ int main(){
     Bicycle b22("ABC-002");
     m.Onsignal(b22);
     cout<<m.GetStatistics()<<endl;
+    cout<<m.GetStatistics(VehicleType::BICYCLE)<<endl;
     cout<<"Error count: "<<m.GetErrorCount()<<endl;
 
     return 0;
