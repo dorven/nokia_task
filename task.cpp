@@ -18,7 +18,7 @@ public:
     VehicleType type;
     string id;
     Vehicle(){}
-    Vehicle(VehicleType type, string id):id(id), type(type), count(0){}
+    Vehicle(VehicleType type, string id):id(id), type(type), count(1){}
     bool operator< (const Vehicle &right) const {
         return id+VehicleTypeStrings[type] < right.id + VehicleTypeStrings[right.type];
     }
@@ -59,6 +59,7 @@ enum States{
 
 class MonitoringSystem{
     set<Vehicle> vehicles;
+    States state = INIT;
     int time_period = 60;
     string getPlaceholderForCar(VehicleType type){
         return type == VehicleType::CAR ? "    ":"";
@@ -78,7 +79,7 @@ public:
     string GetStatistics() {
         string result;
         for(auto &v: vehicles){
-            result+=v.id + " - " + VehicleTypeStrings[(int)v.type] + getPlaceholderForCar(v.type) + " (" + to_string(v.count+1) + ")\n";
+            result+=v.id + " - " + VehicleTypeStrings[(int)v.type] + getPlaceholderForCar(v.type) + " (" + to_string(v.count) + ")\n";
         }
         return result;
     }
