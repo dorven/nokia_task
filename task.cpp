@@ -14,7 +14,7 @@ const string VehicleTypeStrings[]={"Bicycle", "Car", "Scooter"};
 
 class Vehicle{
 public:
-    mutable unsigned short count=1;
+    mutable unsigned short count=0;
     VehicleType type;
     string id;
     Vehicle(){}
@@ -106,7 +106,7 @@ public:
     string GetStatistics() {
         string result;
         for(auto &v: vehicles){
-            result+=v.id + " - " + VehicleTypeStrings[(int)v.type] + getPlaceholderForCar(v.type) + " (" + to_string(v.count) + ")\n";
+            result+=v.id + " - " + VehicleTypeStrings[(int)v.type] + getPlaceholderForCar(v.type) + " (" + to_string(v.count+1) + ")\n";
         }
         return result;
     }
@@ -127,6 +127,10 @@ int main(){
     Bicycle b2("ABC-002");
     m.Onsignal(b2);
     m.Onsignal(s1);
+    Scooter s11("ABC-001");
+    m.Onsignal(s11);
+    Bicycle b22("ABC-002");
+    m.Onsignal(b22);
     cout<<m.GetStatistics()<<endl;
     m.Onsignal(Reset);
     m.Onsignal(Start);
