@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <set>
+#include <thread>
 
 using namespace std;
 
@@ -53,14 +54,17 @@ enum States{
     INIT,
     ACTIVE,
     STOPPED,
-    ERROR
+    ERROR,
+    RESETING
 };
 
 class MonitoringSystem{
+    const unsigned int RESET_INTERVAL = 1;
+    std::thread resetThread;
     set<Vehicle> vehicles;
     States state = INIT;
     unsigned int errorCounter = 0;
-    const unsigned int timePeriod = 60;
+    std::atomic<bool> stopFlag=false;
     string getPlaceholderForCar(VehicleType type){
         return type == VehicleType::CAR ? "    ":"";
     }
@@ -68,6 +72,13 @@ class MonitoringSystem{
         return v.id + " - " + VehicleTypeStrings[(int)v.type] + getPlaceholderForCar(v.type) + " (" + to_string(v.count) + ")\n";
     }
 public:
+    MonitoringSystem(){
+        resetThread = std::thread(&MonitoringSystem::handlePeriodicReset, this);
+    }
+    ~MonitoringSystem(){
+        stopFlag = true;
+        resetThread.join();
+    }
     template <class V>
     void Onsignal(V& vehicleSignal) {
         if(state == ACTIVE){
@@ -81,7 +92,6 @@ public:
     }
 
     void Onsignal(OperationalSignal operationalSignal) {
-        cout<<"Onsignal received: "<<operationalSignal<<endl;
         switch(operationalSignal){
             case START:
                 if(state == INIT) state = ACTIVE;
@@ -90,9 +100,16 @@ public:
                 if(state == ACTIVE) state = STOPPED;
                 break;
             case RESET:
-                state = ACTIVE;
-                errorCounter = 0;
-                vehicles.clear();
+                if(state != RESETING){
+                    state = RESETING;
+                    usleep(100);
+                    errorCounter = 0;
+                    vehicles.clear();
+                    state = ACTIVE;
+                    break;
+                }
+            case RESETING:
+                cout<<"Reset is already in progress.\n";
                 break;
             default:
                 cout<<"Error: Invalid operational signal "<<(int)operationalSignal<<endl;
@@ -105,6 +122,7 @@ public:
     }
 
     string GetStatistics() {
+        if(state == RESETING) return "Currently being reseted...";
         string result;
         for(auto &v: vehicles){
             result+=getVehicleLine(v);
@@ -113,6 +131,7 @@ public:
     }
 
     string GetStatistics(VehicleType type) {
+        if(state == RESETING) return "Currently being reseted...";
         string result;
         for(auto &v: vehicles){
             if(type == v.type) {
@@ -125,17 +144,31 @@ public:
     unsigned int GetErrorCount() {
         return errorCounter;
     }
+
+    void handlePeriodicReset()
+    {
+        int emplasedSeconds = 0;
+        while(!stopFlag){
+            sleep(1);
+            if(emplasedSeconds >= RESET_INTERVAL){
+                cout << "Reseting..." << endl;
+                Onsignal(Reset);
+                emplasedSeconds = 0;
+            }
+            emplasedSeconds++;
+        }
+    }
 };
 
-
 int main(){
+    for(int i=0; i<1; i++){
     MonitoringSystem m;
     m.Onsignal(Start);
     Scooter s1("ABC-001");
     m.Onsignal(s1);
+    sleep(2);
+    m.Onsignal(Reset);
     m.Onsignal(s1);
-    //m.Onsignal(Stop);
-    //m.Onsignal(Reset);
     Car c1("ABC-001");
     m.Onsignal(c1);
     Bicycle b1("ABC-001");
@@ -150,6 +183,7 @@ int main(){
     cout<<m.GetStatistics()<<endl;
     cout<<m.GetStatistics(VehicleType::BICYCLE)<<endl;
     cout<<"Error count: "<<m.GetErrorCount()<<endl;
+    }
 
     return 0;
 }
