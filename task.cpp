@@ -3,6 +3,10 @@
 #include <set>
 #include <thread>
 #include <mutex>
+#include <atomic> //17
+#include <unistd.h> //17
+
+// g++ task.cpp -std=c++20 -o proba /home/krencz/cpp/gtest/googletest/build/lib/libgtest.a
 
 using namespace std;
 
@@ -59,7 +63,7 @@ enum States{
 };
 
 class MonitoringSystem{
-    const unsigned int PERIODIC_RESET_INTERVAL = 1;
+    const unsigned int PERIODIC_RESET_INTERVAL = 60;
     std::mutex mtx; // Periodic reset can collide with user operations so we have to lock
     std::thread resetThread;
     set<Vehicle> vehicles;
@@ -69,7 +73,7 @@ class MonitoringSystem{
     string getPlaceholderForCar(VehicleType type){
         return type == VehicleType::CAR ? "    ":"";
     }
-    string getVehicleLine(auto v){
+    string getVehicleLine(const Vehicle& v){
         return v.id + " - " + VehicleTypeStrings[(int)v.type] + getPlaceholderForCar(v.type) + " (" + to_string(v.count) + ")\n";
     }
 public:
@@ -78,7 +82,7 @@ public:
     }
     ~MonitoringSystem(){
         stopFlag = true;
-        resetThread.join();
+        resetThread.detach();
     }
     template <class V>
     void Onsignal(V& vehicleSignal) {
