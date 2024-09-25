@@ -6,9 +6,13 @@
 #include <atomic> //17
 #include <unistd.h> //17
 
+#include "logging.cpp"
+
 // g++ task.cpp -std=c++20 -o proba /home/krencz/cpp/gtest/googletest/build/lib/libgtest.a
 
 using namespace std;
+
+Logger logger("logfile.txt");
 
 enum VehicleType {
     BICYCLE,
@@ -78,18 +82,28 @@ class MonitoringSystem{
     }
 public:
     MonitoringSystem(){
+        logger.log(Info, "MonitoringSystem started.");
         resetThread = std::thread(&MonitoringSystem::handlePeriodicReset, this);
     }
     ~MonitoringSystem(){
         stopFlag = true;
         resetThread.detach();
+        logger.log(Info, "MonitoringSystem stopped.");
     }
     template <class V>
     void Onsignal(V& vehicleSignal) {
         mtx.lock();
         if(state == ACTIVE){
             auto found = vehicles.find(vehicleSignal);
-            if(found == vehicles.end()) vehicles.insert(vehicleSignal);
+            if(found == vehicles.end()){
+                if(vehicles.size() < 1000){
+                    vehicles.insert(vehicleSignal);
+                }
+                else logger.log(
+                    Error,
+                    "Too many vehicles in the system. Cannot add: " + vehicleSignal.id + " - " + VehicleTypeStrings[(int)vehicleSignal.type]
+                );
+            }
             else found->count++;
         }
         else if(state == ERROR){

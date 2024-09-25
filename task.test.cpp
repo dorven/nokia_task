@@ -5,7 +5,9 @@
 using namespace std;
 // g++ task.test.cpp -std=c++20 -o proba /home/krencz/cpp/gtest/googletest/build/lib/libgtest.a
 
-TEST(MonitoringSystem_Onsignal, EmptyStatistics) {
+const string LOGFILE="logfile.txt";
+
+TEST(MonitoringSystemTest, EmptyStatistics) {
     MonitoringSystem m;
     m.Onsignal(Start);
     EXPECT_EQ(m.GetErrorCount(), 0);
@@ -19,7 +21,7 @@ const string ABC001Plate="ABC-001";
 const string ABC002Plate="ABC-002";
 const string ABC003Plate="ABC-003";
 
-TEST(MonitoringSystem_Onsignal, RegisterVehiclesInOrder) {
+TEST(MonitoringSystemTest, RegisterVehiclesInOrder) {
     MonitoringSystem m;
     m.Onsignal(Start);
 
@@ -60,7 +62,7 @@ TEST(MonitoringSystem_Onsignal, RegisterVehiclesInOrder) {
     EXPECT_EQ(m.GetErrorCount(), 0);
 }
 
-TEST(MonitoringSystem_Onsignal, CountVehicles) {
+TEST(MonitoringSystemTest, CountVehicles) {
     MonitoringSystem m;
     m.Onsignal(Start);
 
@@ -101,8 +103,45 @@ string asseblePlate(int i){
     return plate;
 }
 
-TEST(MonitoringSystem_Onsignal, RegisterMaxAmountOfVehicles) {
-    const int MAX_NUMBER_OF_VEHICLES = 1000;
+const int MAX_NUMBER_OF_VEHICLES = 1000;
+
+bool checkLastLogLineForEntry(string subStr){
+    ifstream inputFile("logfile.txt");
+    EXPECT_TRUE(inputFile.is_open());
+    string logLine="";
+    string lastMeaningfulLine="";
+    bool found = false;
+    while (getline(inputFile, logLine)) {
+        if(logLine !=""){
+            lastMeaningfulLine = logLine;
+        }
+    }
+    if(lastMeaningfulLine.find(subStr) != string::npos) {
+        found = true;
+    }
+    inputFile.close();
+    return found;
+}
+
+TEST(MonitoringSystemTest, TryToRegisterTooManyVehicles) {
+    MonitoringSystem m;
+    m.Onsignal(Start);
+    for(int i=0; i<MAX_NUMBER_OF_VEHICLES+1; i++) {
+        Bicycle b(asseblePlate(i));
+        m.Onsignal(b);
+    }
+    const string result = m.GetStatistics();
+    std::stringstream ss(result);
+    int i=0;
+    string line;
+    while(std::getline(ss, line, '\n')){
+        EXPECT_EQ(line, asseblePlate(i++)+" - Bicycle (1)");
+    }
+    EXPECT_EQ(i, MAX_NUMBER_OF_VEHICLES);
+    EXPECT_TRUE(checkLastLogLineForEntry("ERROR: Too many vehicles in the system. Cannot add: ABC1000 - Bicycle"));
+}
+
+TEST(MonitoringSystemTest, RegisterMaxAmountOfVehicles) {
     MonitoringSystem m;
     m.Onsignal(Start);
     for(int i=0; i<MAX_NUMBER_OF_VEHICLES; i++) {
@@ -117,8 +156,9 @@ TEST(MonitoringSystem_Onsignal, RegisterMaxAmountOfVehicles) {
         EXPECT_EQ(line, asseblePlate(i++)+" - Bicycle (1)");
     }
     EXPECT_EQ(i, MAX_NUMBER_OF_VEHICLES);
-
+    EXPECT_FALSE(checkLastLogLineForEntry("ERROR: Too many vehicles in the system. Cannot add:"));
 }
+
 
 int main(){
     testing::InitGoogleTest();
