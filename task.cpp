@@ -67,7 +67,7 @@ enum States{
 };
 
 class MonitoringSystem{
-    const unsigned int PERIODIC_RESET_INTERVAL = 60;
+    unsigned int PERIODIC_RESET_INTERVAL = 60;
     std::mutex mtx; // Periodic reset can collide with user operations so we have to lock
     std::thread resetThread;
     set<Vehicle> vehicles;
@@ -90,6 +90,15 @@ public:
         resetThread.detach();
         logger.log(Info, "MonitoringSystem stopped.");
     }
+    void setPeriodicResetInterval(int interval){
+        if(interval<1 || interval>INT32_MAX-1){
+            logger.log(Error, "Invalid periodic reset interval. It should be between 1 and 2147483646.");
+            return;
+        }
+        PERIODIC_RESET_INTERVAL = interval;
+        logger.log(Info, "Periodic reset interval set to " + to_string(PERIODIC_RESET_INTERVAL) + " seconds.");
+    }
+
     template <class V>
     void Onsignal(V& vehicleSignal) {
         mtx.lock();
@@ -108,6 +117,10 @@ public:
         }
         else if(state == ERROR){
             errorCounter++;
+            logger.log(
+                Error,
+                "Error in the camera system. Cannot add: " + vehicleSignal.id + " - " + VehicleTypeStrings[(int)vehicleSignal.type]
+            );
         }
         mtx.unlock();
     }
@@ -135,6 +148,7 @@ public:
 
     void Onsignal() {
         state = ERROR;
+        logger.log(Error, "Error in the camera system. MonitoringSystem is in ERROR state.");
     }
 
     string GetStatistics() {
@@ -169,7 +183,6 @@ public:
         while(!stopFlag){
             if(state==STOPPED) emplasedSeconds=0;
             if(emplasedSeconds >= PERIODIC_RESET_INTERVAL){
-                cout << "Periodic reseting...\n" << endl;
                 Onsignal(Reset);
                 emplasedSeconds = 0;
             }
