@@ -149,24 +149,25 @@ public:
     {
         int emplasedSeconds = 0;
         while(!stopFlag){
-            sleep(1);
+            if(state==STOPPED) emplasedSeconds=0;
             if(emplasedSeconds >= PERIODIC_RESET_INTERVAL){
                 cout << "Periodic reseting...\n" << endl;
                 Onsignal(Reset);
                 emplasedSeconds = 0;
             }
+            sleep(1);
             emplasedSeconds++;
         }
     }
 };
 
-int main(){
+/*int main(){
     MonitoringSystem m;
     for(int i=0; i<1; i++){
     m.Onsignal(Start);
     Scooter s1("ABC-001");
     m.Onsignal(s1);
-    sleep(3);
+    sleep(2);
     //m.Onsignal(Reset);
     m.Onsignal(s1);
     Car c1("ABC-001");
@@ -186,4 +187,4 @@ int main(){
     }
 
     return 0;
-}
+}*/
