@@ -9,7 +9,7 @@
 #include "Vehicles.cpp"
 #include "Logging.cpp"
 
-// g++ task.cpp -std=c++20 -o MonitoringSystem
+// g++ MonitoringSystem.cpp -std=c++20 -o MonitoringSystem
 
 using namespace std;
 
@@ -49,6 +49,12 @@ public:
 
     template <class V>
     void Onsignal(V& vehicleSignal) {
+        //Give meaningful compile error if the input parameter is not a valid vehicle
+        static_assert(std::is_base_of<Vehicle, V>::value, "The object recieved is not a valid Vehicle");
+        if(vehicleSignal.id == ""){
+            logger.log(Error, "Vehicle ID cannot be empty.");
+            return;
+        }
         mtx.lock();
         if(state == ACTIVE){
             auto found = vehicles.find(vehicleSignal);
@@ -165,6 +171,11 @@ private:
 
 /*int main(){
     MonitoringSystem m;
+    m.Onsignal(Start);
+    Car c1("");
+    m.Onsignal(c1);
+    //m.Onsignal("asd");
+    /*
     for(int i=0; i<1; i++){
     m.Onsignal(Start);
     Scooter s1("ABC-001");
@@ -186,7 +197,5 @@ private:
     cout<<m.GetStatistics()<<endl;
     cout<<m.GetStatistics(VehicleType::BICYCLE)<<endl;
     cout<<"Error count: "<<m.GetErrorCount()<<endl;
-    }
-
     return 0;
 }*/

@@ -329,6 +329,16 @@ TEST(PeriodicReset, ShouldResetPeriodically) {
     EXPECT_EQ(m.GetStatistics(), "");
 }
 
+TEST(PeriodicReset, EmptyVehicleIdIsNotAllowed) {
+    MonitoringSystem m;
+    m.Onsignal(Start);
+    Bicycle b1("");
+    m.Onsignal(b1);
+    EXPECT_EQ(m.GetStatistics(), "");
+    EXPECT_TRUE(checkLastLogLineForEntry("Vehicle ID cannot be empty."));
+
+}
+
 
 int main(){
     testing::InitGoogleTest();
