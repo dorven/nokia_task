@@ -4,7 +4,7 @@
 #include "MonitoringSystem.cpp"
 
 using namespace std;
-// g++ task.test.cpp -std=c++20 -o TestMonitoringSystem /home/krencz/cpp/gtest/googletest/build/lib/libgtest.a
+// g++ task.test.cpp -std=c++20 -o TestMonitoringSystem gtest/googletest/build/lib/libgtest.a
 
 const string LOGFILE="logfile.txt";
 
@@ -338,7 +338,6 @@ TEST(PeriodicReset, EmptyVehicleIdIsNotAllowed) {
     EXPECT_TRUE(checkLastLogLineForEntry("Vehicle ID cannot be empty."));
 
 }
-
 
 int main(){
     testing::InitGoogleTest();
