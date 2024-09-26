@@ -8,43 +8,11 @@
 #include <atomic> //17
 
 #include "logging.cpp"
+#include "Vehicles.h"
 
 using namespace std;
 
 Logger logger("logfile.txt");
-
-enum VehicleType {
-    BICYCLE,
-    CAR,
-    SCOOTER,
-};
-
-const string VehicleTypeStrings[]={"Bicycle", "Car", "Scooter"};
-
-class Vehicle{
-public:
-    mutable unsigned short count=0;
-    VehicleType type;
-    string id;
-    Vehicle(){}
-    Vehicle(VehicleType type, string id):id(id), type(type), count(1){}
-    bool operator< (const Vehicle &right) const;
-};
-
-class Bicycle: public Vehicle{
-public:
-    Bicycle(string id):Vehicle(VehicleType::BICYCLE, id){}
-};
-
-class Car: public Vehicle{
-public:
-    Car(string id):Vehicle(VehicleType::CAR, id){}
-};
-
-class Scooter: public Vehicle{
-public:
-    Scooter(string id):Vehicle(VehicleType::SCOOTER, id){}
-};
 
 enum OperationalSignal {
     RESET,
