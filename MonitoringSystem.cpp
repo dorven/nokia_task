@@ -9,7 +9,7 @@
 #include "Vehicles.cpp"
 #include "Logging.cpp"
 
-// g++ task.cpp -std=c++20 -o proba /home/krencz/cpp/gtest/googletest/build/lib/libgtest.a
+// g++ task.cpp -std=c++20 -o MonitoringSystem
 
 using namespace std;
 
@@ -33,19 +33,6 @@ enum States{
 };
 
 class MonitoringSystem{
-    unsigned int PERIODIC_RESET_INTERVAL = 60;
-    std::mutex mtx; // Periodic reset can collide with user operations so we have to lock
-    std::thread resetThread;
-    set<Vehicle> vehicles;
-    States state = INIT;
-    unsigned int errorCounter = 0;
-    std::atomic<bool> stopFlag=false;
-    string getPlaceholderForCar(VehicleType type){
-        return type == VehicleType::CAR ? "    ":"";
-    }
-    string getVehicleLine(const Vehicle& v){
-        return v.id + " - " + VehicleTypeStrings[(int)v.type] + getPlaceholderForCar(v.type) + " (" + to_string(v.count) + ")\n";
-    }
 public:
     MonitoringSystem(){
         logger.log(Info, "MonitoringSystem started.");
@@ -53,16 +40,11 @@ public:
     }
     ~MonitoringSystem(){
         stopFlag = true;
+        // deatach gives false positive valgrind findings.
+        // use resetThread.join(); if it is a problem. it will make the destructor a bit slower
+        // because it has to wait for the thread to exit gracefully.
         resetThread.detach();
         logger.log(Info, "MonitoringSystem stopped.");
-    }
-    void setPeriodicResetInterval(int interval){
-        if(interval<1 || interval>INT32_MAX-1){
-            logger.log(Error, "Invalid periodic reset interval. It should be between 1 and 2147483646.");
-            return;
-        }
-        PERIODIC_RESET_INTERVAL = interval;
-        logger.log(Info, "Periodic reset interval set to " + to_string(PERIODIC_RESET_INTERVAL) + " seconds.");
     }
 
     template <class V>
@@ -107,7 +89,7 @@ public:
                 mtx.unlock();
                 break;
             default:
-                cout<<"Error: Invalid operational signal "<<(int)operationalSignal<<endl;
+                logger.log(Error,"Error: Invalid operational signal "+(int)operationalSignal);
                 break;
         }
     }
@@ -139,10 +121,27 @@ public:
         return result;
     }
 
+    void setPeriodicResetInterval(int interval){
+        if(interval<1 || interval>INT32_MAX-1){
+            logger.log(Error, "Invalid periodic reset interval. It should be between 1 and 2147483646.");
+            return;
+        }
+        PERIODIC_RESET_INTERVAL = interval;
+        logger.log(Info, "Periodic reset interval set to " + to_string(PERIODIC_RESET_INTERVAL) + " seconds.");
+    }
+
     unsigned int GetErrorCount() {
         return errorCounter;
     }
 
+private:
+    unsigned int PERIODIC_RESET_INTERVAL = 60;
+    std::mutex mtx; // Periodic reset can collide with user operations so we have to lock
+    std::thread resetThread;
+    set<Vehicle> vehicles;
+    States state = INIT;
+    unsigned int errorCounter = 0;
+    std::atomic<bool> stopFlag=false;
     void handlePeriodicReset()
     {
         int emplasedSeconds = 0;
@@ -155,6 +154,12 @@ public:
             sleep(1);
             emplasedSeconds++;
         }
+    }
+    string getPlaceholderForCar(VehicleType type){
+        return type == VehicleType::CAR ? "    ":"";
+    }
+    string getVehicleLine(const Vehicle& v){
+        return v.id + " - " + VehicleTypeStrings[(int)v.type] + getPlaceholderForCar(v.type) + " (" + to_string(v.count) + ")\n";
     }
 };
 
