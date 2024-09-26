@@ -172,10 +172,9 @@ private:
 /*int main(){
     MonitoringSystem m;
     m.Onsignal(Start);
-    Car c1("");
+    Car c1();
     m.Onsignal(c1);
     //m.Onsignal("asd");
-    /*
     for(int i=0; i<1; i++){
     m.Onsignal(Start);
     Scooter s1("ABC-001");
