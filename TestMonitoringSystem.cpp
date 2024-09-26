@@ -1,9 +1,10 @@
 #include <gtest/gtest.h>
 #include <string>
-#include "task.cpp"
+
+#include "MonitoringSystem.cpp"
 
 using namespace std;
-// g++ task.test.cpp -std=c++20 -o proba /home/krencz/cpp/gtest/googletest/build/lib/libgtest.a
+// g++ task.test.cpp -std=c++20 -o TestMonitoringSystem /home/krencz/cpp/gtest/googletest/build/lib/libgtest.a
 
 const string LOGFILE="logfile.txt";
 
