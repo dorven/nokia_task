@@ -141,7 +141,7 @@ public:
     }
 
 private:
-    unsigned int PERIODIC_RESET_INTERVAL = 60;
+    unsigned int PERIODIC_RESET_INTERVAL = 3600;
     std::mutex mtx; // Periodic reset can collide with user operations so we have to lock
     std::thread resetThread;
     set<Vehicle> vehicles;
