@@ -96,7 +96,7 @@ public:
     }
 
     void Onsignal() {
-        if(state != STOPPED){
+        if(state == ACTIVE){
             state = ERROR;
             logger.log(Error, "Error in the camera system. MonitoringSystem is in ERROR state.");
         }

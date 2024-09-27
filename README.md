@@ -1,6 +1,6 @@
 # Traffic Monitoring System
 ### MonitoringSystem Interfaces
-MonitoringSystem class should be instantiated first.
+MonitoringSystem class should be instantiated first. For example:
 ```
 MonitoringSystem m;
 ```
@@ -37,7 +37,7 @@ I implemented a simple logger which logs to logfile.txt in append mode.\
 The MonitoringSystem is implemented in MonitoringSystem.cpp.\
 The constructor starts the Periodic reset thread which periodically calls Onsignal(Reset) function.\
 The destructor stops the periodic reset thread and with join() it waits until it exits gracefully.
-I don't wanted to use deatach() bacause if we don't wait for the thread to exit gracefully than valgrind is complaining about possible memory leaks.\
+I don't wanted to use deatach() bacause if we don't wait for the thread to exit gracefully than valgrind is complaining about possible memory leaks.
 I don't think it is a real memory leak because the OS keeps track of the memory and frees it after the thread exits but CI systems usually don't like possible memory leaks.
 This thread resets the system depending on the given time period unless the system is in STOPPED state.\
 Reset time period can be configured in the class(it is hardcoded):
@@ -50,7 +50,7 @@ It can be achived with DEV parameter.
 MonitoringSystem m(true); // instantiate with fast reset interval for faster testing
 MonitoringSystem m; // instantiate with normal reset interval
 ```
-The system stores the Vehicles in a set which is an ordered container. Insertion is ~linear complexity but finding a vehicle and increasing its counter is fast. Just logarithmic complexity.
+The system stores the Vehicles in a set which is an ordered container. Insertion is ~linear complexity but finding a vehicle and increasing its counter is fast(logarithmic complexity).
 
 After MonitoringSystem object is instantiated it will be in INIT state. It does not record Vehicles in this state. We have to start it first via sending a Start signal. It will make the system ACTIVE.
 ```

@@ -250,6 +250,7 @@ TEST(StatesAndStateChanges, ResetShouldActivateIfInit) {
 
 TEST(StatesAndStateChanges, ErrorStateShouldCountErrors) {
     MonitoringSystem m(true);
+    m.Onsignal(Start);
     m.Onsignal();
     EXPECT_TRUE(checkLastLogLineForEntry("Error in the camera system. MonitoringSystem is in ERROR state."));
     Bicycle b1(ABC002Plate);
@@ -261,6 +262,7 @@ TEST(StatesAndStateChanges, ErrorStateShouldCountErrors) {
 
 TEST(StatesAndStateChanges, StopStartCannotFixErrorState) {
     MonitoringSystem m(true);
+    m.Onsignal(Start);
     m.Onsignal();
     EXPECT_TRUE(checkLastLogLineForEntry("Error in the camera system. MonitoringSystem is in ERROR state."));
 
@@ -276,6 +278,7 @@ TEST(StatesAndStateChanges, StopStartCannotFixErrorState) {
 
 TEST(StatesAndStateChanges, ResetCanFixErrorState) {
     MonitoringSystem m(true);
+    m.Onsignal(Start);
     m.Onsignal();
     EXPECT_TRUE(checkLastLogLineForEntry("Error in the camera system. MonitoringSystem is in ERROR state."));
 
@@ -338,10 +341,19 @@ TEST(Edgecases, OnlySpaceVehicleIdIsNotAllowed) {
     EXPECT_TRUE(checkLastLogLineForEntry("Vehicle ID cannot be empty."));
 }
 
-TEST(Edgecases, ShouldNotHandleErrorSignalInStopped) {
+TEST(Edgecases, ShouldNotRecordErrorSignalInStopped) {
     MonitoringSystem m(true);
     m.Onsignal(Start);
     m.Onsignal(Stop);
+    m.Onsignal();
+    Bicycle b1(ABC001Plate);
+    m.Onsignal(b1);
+    EXPECT_EQ(m.GetStatistics(), "");
+    EXPECT_EQ(m.GetErrorCount(), 0);
+}
+
+TEST(Edgecases, ShouldNotRecordErrorSignalInInit) {
+    MonitoringSystem m(true);
     m.Onsignal();
     Bicycle b1(ABC001Plate);
     m.Onsignal(b1);
