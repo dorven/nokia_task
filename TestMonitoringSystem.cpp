@@ -318,6 +318,7 @@ TEST(PeriodicReset, ShouldNotResetPeriodicallyIfStopped) {
     EXPECT_EQ(m.GetStatistics(), ABC002Plate+" - Bicycle (1)\n");
 }
 
+
 TEST(Edgecases, EmptyVehicleIdIsNotAllowed) {
     MonitoringSystem m(true);
     m.Onsignal(Start);
@@ -335,6 +336,17 @@ TEST(Edgecases, OnlySpaceVehicleIdIsNotAllowed) {
     m.Onsignal(b1);
     EXPECT_EQ(m.GetStatistics(), "");
     EXPECT_TRUE(checkLastLogLineForEntry("Vehicle ID cannot be empty."));
+}
+
+TEST(Edgecases, ShouldNotHandleErrorSignalInStopped) {
+    MonitoringSystem m(true);
+    m.Onsignal(Start);
+    m.Onsignal(Stop);
+    m.Onsignal();
+    Bicycle b1(ABC001Plate);
+    m.Onsignal(b1);
+    EXPECT_EQ(m.GetStatistics(), "");
+    EXPECT_EQ(m.GetErrorCount(), 0);
 }
 
 int main(){

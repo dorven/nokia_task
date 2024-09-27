@@ -96,8 +96,10 @@ public:
     }
 
     void Onsignal() {
-        state = ERROR;
-        logger.log(Error, "Error in the camera system. MonitoringSystem is in ERROR state.");
+        if(state != STOPPED){
+            state = ERROR;
+            logger.log(Error, "Error in the camera system. MonitoringSystem is in ERROR state.");
+        }
     }
 
     string GetStatistics() {
