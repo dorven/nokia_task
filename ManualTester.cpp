@@ -4,7 +4,7 @@
 
 using namespace std;
 
-// g++ ManualTester.cpp -std=c++20 -o ManualTester
+// g++ ManualTester.cpp -Wsign-conversion -Werror -std=c++20 -o ManualTester
 
 void sendCarSignal(MonitoringSystem& m){
     cout<<"Enter license plate:";
@@ -172,7 +172,7 @@ void showMainMenu(MonitoringSystem& m){
 }
 
 int main(){
-    MonitoringSystem m;
+    MonitoringSystem m(300);
     showMainMenu(m);
     return 0;
 }

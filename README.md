@@ -40,15 +40,16 @@ The destructor stops the periodic reset thread and with join() it waits until it
 I don't wanted to use deatach() bacause if we don't wait for the thread to exit gracefully than valgrind is complaining about possible memory leaks.
 I don't think it is a real memory leak because the OS keeps track of the memory and frees it after the thread exits but CI systems usually don't like possible memory leaks.
 This thread resets the system depending on the given time period unless the system is in STOPPED state.\
-Reset time period can be configured in the class(it is hardcoded):
+Reset time period can be configured in the constructor.
 ```
 const int PROD_RESET_INTERVAL_IN_SECONDS = 300;
 ```
-I set it to 5 minutes by default however for testing the object can be instantiated with much faster reset interval(too fast for human).
-It can be achived with DEV parameter.
+Default value is 300 seconds. It can be changed if provided. For testing the object can be instantiated with much faster reset interval(too fast for human). It can be achived with DEV=true parameter.
 ```
-MonitoringSystem m(true); // instantiate with fast reset interval for faster testing
 MonitoringSystem m; // instantiate with normal reset interval
+MonitoringSystem m(20); // instantiate with custom reset interval
+MonitoringSystem m(1, true); // instantiate with fast reset interval for faster testing
+
 ```
 The system stores the Vehicles in a set which is an ordered container. Insertion is ~linear complexity but finding a vehicle and increasing its counter is fast(logarithmic complexity).
 
@@ -70,7 +71,7 @@ I used googletest framework to test my code. If you want to execute the tests yo
 https://google.github.io/googletest/primer.html\
 Then you can compile and execute the tests.
 ```
-g++ TestMonitoringSystem.cpp -std=c++20 -o TestMonitoringSystem ../gtest/googletest/build/lib/libgtest.a
+g++ TestMonitoringSystem.cpp -Wsign-conversion -Werror -std=c++20 -o TestMonitoringSystem ../gtest/googletest/build/lib/libgtest.a
 ./TestMonitoringSystem
 ```
 
@@ -78,7 +79,7 @@ g++ TestMonitoringSystem.cpp -std=c++20 -o TestMonitoringSystem ../gtest/googlet
 Manual tester is just a helper what I used to test the MonitoringSystem class. I included it because it might be useful for testing but it is not part of the solution.
 It can be compiled and executed with the following commands:
 ```
-g++ ManualTester.cpp -std=c++20 -o ManualTester
+g++ ManualTester.cpp -Wsign-conversion -Werror -std=c++20 -o ManualTester
 ./ManualTester
 ```
 It is a menu driven program which instantiates the MonitoringSystem object and lets you use it's functions with a switch-case based menu.\

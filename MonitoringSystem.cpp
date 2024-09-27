@@ -32,7 +32,8 @@ enum States{
 
 class MonitoringSystem{
 public:
-    MonitoringSystem(bool DEV=false):DEV(DEV){
+    MonitoringSystem(unsigned int PROD_RESET_INTERVAL_IN_SECONDS=300, bool DEV=false):
+        PROD_RESET_INTERVAL_IN_SECONDS(PROD_RESET_INTERVAL_IN_SECONDS),DEV(DEV){
         logger.log(Info, "MonitoringSystem started.");
         resetThread = std::thread(&MonitoringSystem::handlePeriodicReset, this);
     }
@@ -45,7 +46,9 @@ public:
     template <class V>
     void Onsignal(V& vehicleSignal) {
         //Give meaningful compile error if the input parameter is not a valid vehicle
-        static_assert(std::is_base_of<Vehicle, V>::value, "The object recieved is not a valid Vehicle");
+        static_assert(
+            std::is_base_of<Vehicle, V>::value, "The object recieved is not a valid Vehicle"
+        );
         if(vehicleSignal.id.erase(0, vehicleSignal.id.find_first_not_of(' ')) == ""){
             logger.log(Error, "Vehicle ID cannot be empty.");
             return;
@@ -59,7 +62,8 @@ public:
                 }
                 else logger.log(
                     Error,
-                    "Too many vehicles in the system. Cannot add: " + vehicleSignal.id + " - " + VehicleTypeStrings[(int)vehicleSignal.type]
+                    "Too many vehicles in the system. Cannot add: " + vehicleSignal.id + " - " +
+                        VehicleTypeStrings[(int)vehicleSignal.type]
                 );
             }
             else found->count++;
@@ -68,7 +72,8 @@ public:
             errorCounter++;
             logger.log(
                 Error,
-                "Error in the camera system. Cannot add: " + vehicleSignal.id + " - " + VehicleTypeStrings[(int)vehicleSignal.type]
+                "Error in the camera system. Cannot add: " + vehicleSignal.id + " - " +
+                    VehicleTypeStrings[(int)vehicleSignal.type]
             );
         }
         mtx.unlock();
@@ -130,8 +135,8 @@ public:
 
 private:
     bool DEV=false;  // instantiate with fast reset interval for faster testing
-    const int PROD_RESET_INTERVAL_IN_SECONDS = 300;
-    const int DEV_RESET_INTERVAL_IN_MICRO_SECONDS = 40000;
+    const unsigned int PROD_RESET_INTERVAL_IN_SECONDS=300;
+    const unsigned int DEV_RESET_INTERVAL_IN_MICRO_SECONDS = 40000;
     const unsigned int PERIODIC_RESET_INTERVAL =
         DEV ? DEV_RESET_INTERVAL_IN_MICRO_SECONDS : PROD_RESET_INTERVAL_IN_SECONDS * 1000000;
     std::mutex mtx; // Periodic reset can collide with user operations so we have to lock
@@ -142,8 +147,8 @@ private:
     std::atomic<bool> stopFlag=false;
     void handlePeriodicReset()
     {
-        const int waitTime = DEV ? 50000 : 1000000;
-        int emplasedMicroSeconds = 0;
+        const unsigned int waitTime = DEV ? 50000 : 1000000;
+        unsigned int emplasedMicroSeconds = 0;
         while(!stopFlag){
             if(state==STOPPED) emplasedMicroSeconds=0;
             if(emplasedMicroSeconds >= PERIODIC_RESET_INTERVAL){
@@ -158,6 +163,7 @@ private:
         return type == VehicleType::CAR ? "    ":"";
     }
     string getVehicleLine(const Vehicle& v){
-        return v.id + " - " + VehicleTypeStrings[(int)v.type] + getPlaceholderForCar(v.type) + " (" + to_string(v.count) + ")\n";
+        return v.id + " - " + VehicleTypeStrings[(int)v.type] + getPlaceholderForCar(v.type) +
+            " (" + to_string(v.count) + ")\n";
     }
 };
