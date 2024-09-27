@@ -46,7 +46,7 @@ public:
     void Onsignal(V& vehicleSignal) {
         //Give meaningful compile error if the input parameter is not a valid vehicle
         static_assert(std::is_base_of<Vehicle, V>::value, "The object recieved is not a valid Vehicle");
-        if(vehicleSignal.id == ""){
+        if(vehicleSignal.id.erase(0, vehicleSignal.id.find_first_not_of(' ')) == ""){
             logger.log(Error, "Vehicle ID cannot be empty.");
             return;
         }

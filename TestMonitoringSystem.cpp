@@ -314,6 +314,15 @@ TEST(Edgecases, EmptyVehicleIdIsNotAllowed) {
 
 }
 
+TEST(Edgecases, OnlySpaceVehicleIdIsNotAllowed) {
+    MonitoringSystem m(true);
+    m.Onsignal(Start);
+    Bicycle b1("   ");
+    m.Onsignal(b1);
+    EXPECT_EQ(m.GetStatistics(), "");
+    EXPECT_TRUE(checkLastLogLineForEntry("Vehicle ID cannot be empty."));
+}
+
 int main(){
     testing::InitGoogleTest();
     return RUN_ALL_TESTS();
