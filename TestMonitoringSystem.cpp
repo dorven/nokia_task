@@ -4,7 +4,7 @@
 #include "MonitoringSystem.cpp"
 
 using namespace std;
-// g++ task.test.cpp -std=c++20 -o TestMonitoringSystem gtest/googletest/build/lib/libgtest.a
+// g++ TestMonitoringSystem.cpp -std=c++20 -o TestMonitoringSystem ../gtest/googletest/build/lib/libgtest.a
 
 const string LOGFILE="logfile.txt";
 

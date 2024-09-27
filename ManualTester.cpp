@@ -4,6 +4,8 @@
 
 using namespace std;
 
+// g++ ManualTester.cpp -std=c++20 -o ManualTester
+
 void sendCarSignal(MonitoringSystem& m){
     cout<<"Enter license plate:";
     string plate;

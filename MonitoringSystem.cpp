@@ -3,13 +3,11 @@
 #include <set>
 #include <thread>
 #include <mutex>
-#include <atomic> //17
-#include <unistd.h> //17
+#include <atomic>
+#include <unistd.h>
 
 #include "Vehicles.cpp"
 #include "Logging.cpp"
-
-// g++ MonitoringSystem.cpp -std=c++20 -o MonitoringSystem
 
 using namespace std;
 
