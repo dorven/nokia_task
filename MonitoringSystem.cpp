@@ -128,7 +128,10 @@ public:
 
 private:
     bool DEV=false;  // instantiate with fast reset interval for faster testing
-    const unsigned int PERIODIC_RESET_INTERVAL = DEV ? 1 : 3600;
+    const int PROD_RESET_INTERVAL_IN_SECONDS = 300;
+    const int DEV_RESET_INTERVAL_IN_MICRO_SECONDS = 40000;
+    const unsigned int PERIODIC_RESET_INTERVAL =
+        DEV ? DEV_RESET_INTERVAL_IN_MICRO_SECONDS : PROD_RESET_INTERVAL_IN_SECONDS * 1000000;
     std::mutex mtx; // Periodic reset can collide with user operations so we have to lock
     std::thread resetThread;
     set<Vehicle> vehicles;
@@ -138,15 +141,15 @@ private:
     void handlePeriodicReset()
     {
         const int waitTime = DEV ? 50000 : 1000000;
-        int emplasedSeconds = 0;
+        int emplasedMicroSeconds = 0;
         while(!stopFlag){
-            if(state==STOPPED) emplasedSeconds=0;
-            if(emplasedSeconds >= PERIODIC_RESET_INTERVAL){
+            if(state==STOPPED) emplasedMicroSeconds=0;
+            if(emplasedMicroSeconds >= PERIODIC_RESET_INTERVAL){
                 Onsignal(Reset);
-                emplasedSeconds = 0;
+                emplasedMicroSeconds = 0;
             }
             usleep(waitTime);
-            emplasedSeconds++;
+            emplasedMicroSeconds+=waitTime;
         }
     }
     string getPlaceholderForCar(VehicleType type){

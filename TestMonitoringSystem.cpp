@@ -304,6 +304,20 @@ TEST(PeriodicReset, ShouldResetPeriodically) {
     EXPECT_EQ(m.GetStatistics(), "");
 }
 
+TEST(PeriodicReset, ShouldNotResetPeriodicallyIfStopped) {
+    MonitoringSystem m(true);
+    m.Onsignal(Start);
+    Bicycle b1(ABC002Plate);
+    m.Onsignal(b1);
+    EXPECT_EQ(m.GetStatistics(), ABC002Plate+" - Bicycle (1)\n");
+    m.Onsignal(Stop);
+
+    // After having a vehicle and an error in the system let's wait for the periodic reset
+    // The system is stopped so it is not going to reset
+    usleep(60000);
+    EXPECT_EQ(m.GetStatistics(), ABC002Plate+" - Bicycle (1)\n");
+}
+
 TEST(Edgecases, EmptyVehicleIdIsNotAllowed) {
     MonitoringSystem m(true);
     m.Onsignal(Start);
