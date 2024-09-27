@@ -66,7 +66,6 @@ void showControlSignalMenu(MonitoringSystem& m){
     cout<<"Enter your choice: ";
     int choice;
     cin>>choice;
-    string plate="";
     switch(choice){
         case 1:
             m.Onsignal(Start);
@@ -91,13 +90,6 @@ void showControlSignalMenu(MonitoringSystem& m){
 void showStatistics(MonitoringSystem& m){
     cout<<endl<<"Vehicle Statistics:"<<endl;
     cout<<m.GetStatistics()<<endl;
-}
-
-void setPeriodicResetInterval(MonitoringSystem& m){
-    cout<<"Please enter reset interval in secods:"<<endl;
-    int interval=3600;
-    cin >> interval;
-    m.setPeriodicResetInterval(interval);
 }
 
 void showStatisticsByType(MonitoringSystem& m){
@@ -132,11 +124,10 @@ void showMainMenu(MonitoringSystem& m){
         cout<<"Monitoring System Main Menu:"<<endl;
         cout<<"1. Send Vehicle signal"<<endl;
         cout<<"2. Send control signal"<<endl;
-        cout<<"3. Set Periodic Reset Interval"<<endl;
-        cout<<"4. Get Statistics"<<endl;
-        cout<<"5. Get Statistics by Type"<<endl;
-        cout<<"6. Get Error Count"<<endl;
-        cout<<"7. Quit"<<endl;
+        cout<<"3. Get Statistics"<<endl;
+        cout<<"4. Get Statistics by Type"<<endl;
+        cout<<"5. Get Error Count"<<endl;
+        cout<<"6. Quit"<<endl;
         cout<<"Enter your choice: ";
         int choice;
         cin>>choice;
@@ -148,18 +139,15 @@ void showMainMenu(MonitoringSystem& m){
                 showControlSignalMenu(m);
                 break;
             case 3:
-                setPeriodicResetInterval(m);
-                break;
-            case 4:
                 showStatistics(m);
                 break;
-            case 5:
+            case 4:
                 showStatisticsByType(m);
                 break;
-            case 6:
+            case 5:
                 cout<<endl<<"Error Count: "<<m.GetErrorCount()<<endl;
                 break;
-            case 7:
+            case 6:
                 exit=true;
                 break;
             default:

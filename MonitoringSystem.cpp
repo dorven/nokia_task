@@ -34,16 +34,13 @@ enum States{
 
 class MonitoringSystem{
 public:
-    MonitoringSystem(){
+    MonitoringSystem(bool DEV=false):DEV(DEV){
         logger.log(Info, "MonitoringSystem started.");
         resetThread = std::thread(&MonitoringSystem::handlePeriodicReset, this);
     }
     ~MonitoringSystem(){
         stopFlag = true;
-        // deatach gives false positive valgrind findings.
-        // use resetThread.join(); if it is a problem. it will make the destructor a bit slower
-        // because it has to wait for the thread to exit gracefully.
-        resetThread.detach();
+        resetThread.join();
         logger.log(Info, "MonitoringSystem stopped.");
     }
 
@@ -127,21 +124,13 @@ public:
         return result;
     }
 
-    void setPeriodicResetInterval(int interval){
-        if(interval<1 || interval>INT32_MAX-1){
-            logger.log(Error, "Invalid periodic reset interval. It should be between 1 and 2147483646.");
-            return;
-        }
-        PERIODIC_RESET_INTERVAL = interval;
-        logger.log(Info, "Periodic reset interval set to " + to_string(PERIODIC_RESET_INTERVAL) + " seconds.");
-    }
-
     unsigned int GetErrorCount() {
         return errorCounter;
     }
 
 private:
-    unsigned int PERIODIC_RESET_INTERVAL = 3600;
+    bool DEV=false;  // instantiate with fast reset interval for faster testing
+    const unsigned int PERIODIC_RESET_INTERVAL = DEV ? 1 : 3600;
     std::mutex mtx; // Periodic reset can collide with user operations so we have to lock
     std::thread resetThread;
     set<Vehicle> vehicles;
@@ -150,6 +139,7 @@ private:
     std::atomic<bool> stopFlag=false;
     void handlePeriodicReset()
     {
+        const int waitTime = DEV ? 50000 : 1000000;
         int emplasedSeconds = 0;
         while(!stopFlag){
             if(state==STOPPED) emplasedSeconds=0;
@@ -157,7 +147,7 @@ private:
                 Onsignal(Reset);
                 emplasedSeconds = 0;
             }
-            sleep(1);
+            usleep(waitTime);
             emplasedSeconds++;
         }
     }
@@ -168,33 +158,3 @@ private:
         return v.id + " - " + VehicleTypeStrings[(int)v.type] + getPlaceholderForCar(v.type) + " (" + to_string(v.count) + ")\n";
     }
 };
-
-/*int main(){
-    MonitoringSystem m;
-    m.Onsignal(Start);
-    Car c1();
-    m.Onsignal(c1);
-    //m.Onsignal("asd");
-    for(int i=0; i<1; i++){
-    m.Onsignal(Start);
-    Scooter s1("ABC-001");
-    m.Onsignal(s1);
-    sleep(2);
-    //m.Onsignal(Reset);
-    m.Onsignal(s1);
-    Car c1("ABC-001");
-    m.Onsignal(c1);
-    Bicycle b1("ABC-001");
-    m.Onsignal(b1);
-    Bicycle b2("ABC-002");
-    m.Onsignal(b2);
-    m.Onsignal(s1);
-    Scooter s11("ABC-001");
-    m.Onsignal(s11);
-    Bicycle b22("ABC-002");
-    m.Onsignal(b22);
-    cout<<m.GetStatistics()<<endl;
-    cout<<m.GetStatistics(VehicleType::BICYCLE)<<endl;
-    cout<<"Error count: "<<m.GetErrorCount()<<endl;
-    return 0;
-}*/

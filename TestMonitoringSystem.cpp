@@ -9,7 +9,7 @@ using namespace std;
 const string LOGFILE="logfile.txt";
 
 TEST(BasicFunctionality, EmptyStatistics) {
-    MonitoringSystem m;
+    MonitoringSystem m(true);
     m.Onsignal(Start);
     EXPECT_EQ(m.GetErrorCount(), 0);
     EXPECT_EQ(m.GetStatistics(), "");
@@ -23,7 +23,7 @@ const string ABC002Plate="ABC-002";
 const string ABC003Plate="ABC-003";
 
 TEST(BasicFunctionality, RegisterVehiclesInOrder) {
-    MonitoringSystem m;
+    MonitoringSystem m(true);
     m.Onsignal(Start);
 
     Bicycle b1(ABC002Plate);
@@ -64,7 +64,7 @@ TEST(BasicFunctionality, RegisterVehiclesInOrder) {
 }
 
 TEST(BasicFunctionality, CountVehicles) {
-    MonitoringSystem m;
+    MonitoringSystem m(true);
     m.Onsignal(Start);
 
     Bicycle bike(ABC002Plate);
@@ -125,7 +125,7 @@ bool checkLastLogLineForEntry(string subStr){
 }
 
 TEST(MaxNumberOfVehicles, TryToRegisterTooManyVehicles) {
-    MonitoringSystem m;
+    MonitoringSystem m(true);
     m.Onsignal(Start);
     for(int i=0; i<MAX_NUMBER_OF_VEHICLES+1; i++) {
         Bicycle b(asseblePlate(i));
@@ -143,7 +143,7 @@ TEST(MaxNumberOfVehicles, TryToRegisterTooManyVehicles) {
 }
 
 TEST(MaxNumberOfVehicles, RegisterMaxAmountOfVehicles) {
-    MonitoringSystem m;
+    MonitoringSystem m(true);
     m.Onsignal(Start);
     for(int i=0; i<MAX_NUMBER_OF_VEHICLES; i++) {
         Bicycle b(asseblePlate(i));
@@ -161,7 +161,7 @@ TEST(MaxNumberOfVehicles, RegisterMaxAmountOfVehicles) {
 }
 
 TEST(StatesAndStateChanges, NotRegisterVehiclesInInitState) {
-    MonitoringSystem m;
+    MonitoringSystem m(true);
     Bicycle bike(ABC001Plate);
     m.Onsignal(bike);
 
@@ -171,7 +171,7 @@ TEST(StatesAndStateChanges, NotRegisterVehiclesInInitState) {
 }
 
 TEST(StatesAndStateChanges, NotRegisterOrCountVehiclesInStoppedState) {
-    MonitoringSystem m;
+    MonitoringSystem m(true);
     m.Onsignal(Start);
     Bicycle bike(ABC001Plate);
     m.Onsignal(bike);
@@ -190,7 +190,7 @@ TEST(StatesAndStateChanges, NotRegisterOrCountVehiclesInStoppedState) {
 }
 
 TEST(StatesAndStateChanges, ResetShouldClearVehicleStatisticsAndActivate) {
-    MonitoringSystem m;
+    MonitoringSystem m(true);
     m.Onsignal(Start);
     Bicycle b1(ABC002Plate);
     m.Onsignal(b1);
@@ -217,7 +217,7 @@ TEST(StatesAndStateChanges, ResetShouldClearVehicleStatisticsAndActivate) {
 }
 
 TEST(StatesAndStateChanges, ResetShouldActivateIfStopped) {
-    MonitoringSystem m;
+    MonitoringSystem m(true);
     m.Onsignal(Start);
     m.Onsignal(Stop);
 
@@ -234,7 +234,7 @@ TEST(StatesAndStateChanges, ResetShouldActivateIfStopped) {
 }
 
 TEST(StatesAndStateChanges, ResetShouldActivateIfInit) {
-    MonitoringSystem m;
+    MonitoringSystem m(true);
 
     // Check if it's really init. No registration possible.
     Bicycle b1(ABC002Plate);
@@ -249,7 +249,7 @@ TEST(StatesAndStateChanges, ResetShouldActivateIfInit) {
 }
 
 TEST(StatesAndStateChanges, ErrorStateShouldCountErrors) {
-    MonitoringSystem m;
+    MonitoringSystem m(true);
     m.Onsignal();
     EXPECT_TRUE(checkLastLogLineForEntry("Error in the camera system. MonitoringSystem is in ERROR state."));
     Bicycle b1(ABC002Plate);
@@ -260,7 +260,7 @@ TEST(StatesAndStateChanges, ErrorStateShouldCountErrors) {
 }
 
 TEST(StatesAndStateChanges, StopStartCannotFixErrorState) {
-    MonitoringSystem m;
+    MonitoringSystem m(true);
     m.Onsignal();
     EXPECT_TRUE(checkLastLogLineForEntry("Error in the camera system. MonitoringSystem is in ERROR state."));
 
@@ -275,7 +275,7 @@ TEST(StatesAndStateChanges, StopStartCannotFixErrorState) {
 }
 
 TEST(StatesAndStateChanges, ResetCanFixErrorState) {
-    MonitoringSystem m;
+    MonitoringSystem m(true);
     m.Onsignal();
     EXPECT_TRUE(checkLastLogLineForEntry("Error in the camera system. MonitoringSystem is in ERROR state."));
 
@@ -288,34 +288,9 @@ TEST(StatesAndStateChanges, ResetCanFixErrorState) {
     EXPECT_FALSE(checkLastLogLineForEntry("Error in the camera system. Cannot add: ABC-002 - Bicycle"));
 }
 
-TEST(PeriodicReset, SetTooSmallPeriodicResetInterval) {
-    MonitoringSystem m;
-    m.setPeriodicResetInterval(0);
-    EXPECT_TRUE(checkLastLogLineForEntry("Invalid periodic reset interval. It should be between 1 and 2147483646."));
-}
-
-TEST(PeriodicReset, SetTooBigPeriodicResetInterval) {
-    MonitoringSystem m;
-    m.setPeriodicResetInterval(INT32_MAX);
-    EXPECT_TRUE(checkLastLogLineForEntry("Invalid periodic reset interval. It should be between 1 and 2147483646."));
-}
-
-TEST(PeriodicReset, SetMaxPeriodicResetInterval) {
-    MonitoringSystem m;
-    m.setPeriodicResetInterval(INT32_MAX-1);
-    EXPECT_FALSE(checkLastLogLineForEntry("Invalid periodic reset interval. It should be between 1 and 2147483646."));
-}
-
-TEST(PeriodicReset, SetMinPeriodicResetInterval) {
-    MonitoringSystem m;
-    m.setPeriodicResetInterval(1);
-    EXPECT_FALSE(checkLastLogLineForEntry("Invalid periodic reset interval. It should be between 1 and 2147483646."));
-}
-
 TEST(PeriodicReset, ShouldResetPeriodically) {
-    MonitoringSystem m;
+    MonitoringSystem m(true);
     m.Onsignal(Start);
-    m.setPeriodicResetInterval(1);
     Bicycle b1(ABC002Plate);
     m.Onsignal(b1);
     m.Onsignal();
@@ -324,13 +299,13 @@ TEST(PeriodicReset, ShouldResetPeriodically) {
     EXPECT_EQ(m.GetErrorCount(), 1);
 
     //After having a vehicle and an error in the system let's wait for the periodic reset to clear it
-    sleep(1);
+    usleep(60000);
     EXPECT_EQ(m.GetErrorCount(), 0);
     EXPECT_EQ(m.GetStatistics(), "");
 }
 
-TEST(PeriodicReset, EmptyVehicleIdIsNotAllowed) {
-    MonitoringSystem m;
+TEST(Edgecases, EmptyVehicleIdIsNotAllowed) {
+    MonitoringSystem m(true);
     m.Onsignal(Start);
     Bicycle b1("");
     m.Onsignal(b1);
