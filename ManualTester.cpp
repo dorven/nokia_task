@@ -28,16 +28,26 @@ void sendScooterSignal(MonitoringSystem& m){
     m.Onsignal(s);
 }
 
+int getChoice(){
+    string choice;
+    cout<<"Enter your choice: ";
+    cin>>choice;
+    try{
+        return stoi(choice);
+    } catch(...){
+        cout<<"Please enter a number."<<endl;
+        return 0;
+    }
+
+}
+
 void showVehicleSignalMenu(MonitoringSystem& m){
     cout<<"Vehicle Signal Menu:"<<endl;
     cout<<"1. Send Car signal"<<endl;
     cout<<"2. Send Bicycle signal"<<endl;
     cout<<"3. Send Scooter signal"<<endl;
     cout<<"4. Cancel"<<endl;
-    cout<<"Enter your choice: ";
-    int choice;
-    cin>>choice;
-    string plate="";
+    int choice=getChoice();
     switch(choice){
         case 1:
             sendCarSignal(m);
@@ -52,20 +62,19 @@ void showVehicleSignalMenu(MonitoringSystem& m){
             return;
         default:
             cout<<"Invalid choice!"<<endl;
+            showVehicleSignalMenu(m);
             break;
     }
 }
 
 void showControlSignalMenu(MonitoringSystem& m){
-    cout<<"Vehicle Signal Menu:"<<endl;
+    cout<<"Control Signal Menu:"<<endl;
     cout<<"1. Send Start signal"<<endl;
     cout<<"2. Send Stop signal"<<endl;
     cout<<"3. Send Reset signal"<<endl;
     cout<<"4. Send Empty Error signal"<<endl;
     cout<<"5. Cancel"<<endl;
-    cout<<"Enter your choice: ";
-    int choice;
-    cin>>choice;
+    int choice=getChoice();
     switch(choice){
         case 1:
             m.Onsignal(Start);
@@ -83,6 +92,7 @@ void showControlSignalMenu(MonitoringSystem& m){
             return;
         default:
             cout<<"Invalid choice!"<<endl;
+            showControlSignalMenu(m);
             break;
     }
 }
@@ -97,11 +107,11 @@ void showStatisticsByType(MonitoringSystem& m){
     cout<<"1. Bicycle"<<endl;
     cout<<"2. Car"<<endl;
     cout<<"3. Scooter"<<endl;
-    cout<<"Enter your choice: ";
-    int choice;
-    cin>>choice;
-    if(choice<1 || choice > 3){cout<<"Invalid choice!"<<endl; return;}
-    cout<<VehicleTypeStrings[choice-1]<<" statistics:"<<endl;
+    cout<<"4. Cancel"<<endl;
+    int choice=getChoice();
+    if(choice>=1 && choice <= 3){
+        cout<<VehicleTypeStrings[choice-1]<<" statistics:"<<endl;
+    }
     switch(choice){
         case 1:
             cout<<m.GetStatistics(VehicleType::BICYCLE)<<endl;
@@ -112,14 +122,18 @@ void showStatisticsByType(MonitoringSystem& m){
         case 3:
             cout<<m.GetStatistics(VehicleType::SCOOTER)<<endl;
             break;
+        case 4:
+            return;
         default:
             cout<<"Invalid choice!"<<endl;
+            showStatisticsByType(m);
             break;
     }
 }
 
 void showMainMenu(MonitoringSystem& m){
     bool exit=false;
+    int choice;
     while(!exit){
         cout<<"Monitoring System Main Menu:"<<endl;
         cout<<"1. Send Vehicle signal"<<endl;
@@ -128,9 +142,7 @@ void showMainMenu(MonitoringSystem& m){
         cout<<"4. Get Statistics by Type"<<endl;
         cout<<"5. Get Error Count"<<endl;
         cout<<"6. Quit"<<endl;
-        cout<<"Enter your choice: ";
-        int choice;
-        cin>>choice;
+        choice=getChoice();
         switch(choice){
             case 1:
                 showVehicleSignalMenu(m);
