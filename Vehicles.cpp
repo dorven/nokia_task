@@ -22,7 +22,7 @@ protected:
 private:
     VehicleType type;
     string id;
-    mutable unsigned short count=0;
+    mutable unsigned int count=0;
 
     friend class MonitoringSystem;
 };
