@@ -30,17 +30,17 @@ private:
 class Bicycle: public Vehicle{
 public:
     Bicycle()=delete;
-    Bicycle(string id):Vehicle(VehicleType::BICYCLE, id){}
+    Bicycle(const string id):Vehicle(VehicleType::BICYCLE, id){}
 };
 
 class Car: public Vehicle{
 public:
     Car()=delete;
-    Car(string id):Vehicle(VehicleType::CAR, id){}
+    Car(const string id):Vehicle(VehicleType::CAR, id){}
 };
 
 class Scooter: public Vehicle{
 public:
     Scooter()=delete;
-    Scooter(string id):Vehicle(VehicleType::SCOOTER, id){}
+    Scooter(const string id):Vehicle(VehicleType::SCOOTER, id){}
 };

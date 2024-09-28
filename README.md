@@ -39,7 +39,7 @@ The constructor starts the Periodic reset thread which periodically calls Onsign
 The destructor stops the periodic reset thread and with join() it waits until it exits gracefully.
 This thread resets the system depending on the given time period unless the system is in STOPPED state.\
 Reset time period can be configured in the constructor.
-Default value is 300 seconds. It can be changed if provided. For testing the object can be instantiated with much faster reset interval(too fast for human). It can be achieved via setting the parameter to 0.
+Default value is 300 seconds. It can be changed if provided. It only accept integer values. For testing the object can be instantiated with much faster reset interval(too fast for human). It can be achieved via setting the parameter below 1.
 ```
 MonitoringSystem m; // instantiate with normal reset interval
 MonitoringSystem m(20); // instantiate with custom reset interval
@@ -66,7 +66,7 @@ I used googletest framework to test my code. If you want to execute the tests yo
 https://google.github.io/googletest/primer.html \
 You can compile and run the tests with the following commands. Please pay attention to to the location of the gtest folder and libraries.
 ```
-g++ TestMonitoringSystem.cpp -Wsign-conversion -Wall -Werror -std=c++20 -o TestMonitoringSystem ../gtest/googletest/build/lib/libgtest.a
+g++ TestMonitoringSystem.cpp -Wall -Werror -std=c++20 -o TestMonitoringSystem ../gtest/googletest/build/lib/libgtest.a
 ./TestMonitoringSystem
 ```
 
@@ -74,7 +74,7 @@ g++ TestMonitoringSystem.cpp -Wsign-conversion -Wall -Werror -std=c++20 -o TestM
 Manual tester is just a helper what I used to test the MonitoringSystem class. I included it because it might be useful for testing.
 It can be compiled and executed with the following commands:
 ```
-g++ ManualTester.cpp -Wsign-conversion -Wall -Werror -std=c++20 -o ManualTester
+g++ ManualTester.cpp -Wall -Werror -std=c++20 -o ManualTester
 ./ManualTester
 ```
 It is a menu driven program which instantiates the MonitoringSystem object and lets you use it's functions with a switch-case based menu.\

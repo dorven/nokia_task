@@ -32,8 +32,10 @@ enum States{
 
 class MonitoringSystem{
 public:
-    MonitoringSystem(unsigned int RESET_INTERVAL_IN_SECONDS=300):
-        RESET_INTERVAL_IN_SECONDS(RESET_INTERVAL_IN_SECONDS){
+    template<typename T = int>
+    MonitoringSystem(const T RESET_INTERVAL_IN_SECONDS = 300) :
+        RESET_INTERVAL_IN_SECONDS(max(0,RESET_INTERVAL_IN_SECONDS)) {
+        static_assert(std::is_integral<T>::value, "RESET_INTERVAL_IN_SECONDS must be integer.");
         logger.log(Info, "MonitoringSystem started.");
         resetThread = std::thread(&MonitoringSystem::handlePeriodicReset, this);
     }
@@ -78,7 +80,7 @@ public:
         mtx.unlock();
     }
 
-    void Onsignal(OperationalSignal operationalSignal) {
+    void Onsignal(const OperationalSignal operationalSignal) {
         switch(operationalSignal){
             case START:
                 if(state == INIT) state = ACTIVE;
@@ -116,7 +118,7 @@ public:
         return result;
     }
 
-    string GetStatistics(VehicleType type) {
+    string GetStatistics(const VehicleType type) {
         mtx.lock();
         string result;
         for(auto &v: vehicles){
@@ -159,7 +161,7 @@ private:
             emplasedMicroSeconds+=waitTime;
         }
     }
-    string getPlaceholderForCar(VehicleType type){
+    string getPlaceholderForCar(const VehicleType type){
         return type == VehicleType::CAR ? "    " : "";
     }
     string getVehicleLine(const Vehicle& v){

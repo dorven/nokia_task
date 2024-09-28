@@ -5,7 +5,7 @@
 
 using namespace std;
 
-// g++ TestMonitoringSystem.cpp -Wsign-conversion -Werror -std=c++20 -o TestMonitoringSystem ../gtest/googletest/build/lib/libgtest.a
+// g++ TestMonitoringSystem.cpp -Wall -Werror -std=c++20 -o TestMonitoringSystem ../gtest/googletest/build/lib/libgtest.a
 
 const string LOGFILE = "logfile.txt";
 
@@ -96,11 +96,11 @@ TEST(BasicFunctionality, CountVehicles) {
     EXPECT_EQ(m.GetErrorCount(), 0);
 }
 
-string asseblePlate(int i){
-    string numberPart = to_string(i);
-    long unsigned int lengthOfNumberPart=numberPart.length();
-    string plateTemplate="ABC-000";
-    string plate = plateTemplate.substr(0, plateTemplate.size()-lengthOfNumberPart)+to_string(i);
+string asseblePlate(const int i){
+    const string numberPart = to_string(i);
+    const long unsigned int lengthOfNumberPart=numberPart.length();
+    const string plateTemplate="ABC-000";
+    const string plate = plateTemplate.substr(0, plateTemplate.size()-lengthOfNumberPart)+to_string(i);
     return plate;
 }
 
@@ -249,7 +249,7 @@ TEST(StatesAndStateChanges, ResetShouldActivateIfInit) {
 }
 
 TEST(StatesAndStateChanges, ErrorStateShouldCountErrors) {
-    MonitoringSystem m(0);
+    MonitoringSystem m(-1);
     m.Onsignal(Start);
     m.Onsignal();
     EXPECT_TRUE(checkLastLogLineForEntry("Error in the camera system. MonitoringSystem is in ERROR state."));
@@ -261,7 +261,7 @@ TEST(StatesAndStateChanges, ErrorStateShouldCountErrors) {
 }
 
 TEST(StatesAndStateChanges, StopStartCannotFixErrorState) {
-    MonitoringSystem m(0);
+    MonitoringSystem m(-1);
     m.Onsignal(Start);
     m.Onsignal();
     EXPECT_TRUE(checkLastLogLineForEntry("Error in the camera system. MonitoringSystem is in ERROR state."));
@@ -277,7 +277,7 @@ TEST(StatesAndStateChanges, StopStartCannotFixErrorState) {
 }
 
 TEST(StatesAndStateChanges, ResetCanFixErrorState) {
-    MonitoringSystem m(0);
+    MonitoringSystem m(-1);
     m.Onsignal(Start);
     m.Onsignal();
     EXPECT_TRUE(checkLastLogLineForEntry("Error in the camera system. MonitoringSystem is in ERROR state."));
