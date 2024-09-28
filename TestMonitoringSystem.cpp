@@ -10,7 +10,6 @@ const string LOGFILE="logfile.txt";
 
 TEST(BasicFunctionality, EmptyStatistics) {
     MonitoringSystem m(0);
-    m.Onsignal(Start);
     EXPECT_EQ(m.GetErrorCount(), 0);
     EXPECT_EQ(m.GetStatistics(), "");
     EXPECT_EQ(m.GetStatistics(VehicleType::BICYCLE), "");

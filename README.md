@@ -63,7 +63,7 @@ GetErrorCount() method will give back the error count.
 
 ### Compile and Run tests:
 I used googletest framework to test my code. If you want to execute the tests you have to install googletest framework.\
-https://google.github.io/googletest/primer.html\
+https://google.github.io/googletest/primer.html \
 You can compile and run the tests with the following commands. Please pay attention to to the location of the gtest folder and libraries.
 ```
 g++ TestMonitoringSystem.cpp -Wsign-conversion -Wall -Werror -std=c++20 -o TestMonitoringSystem ../gtest/googletest/build/lib/libgtest.a
