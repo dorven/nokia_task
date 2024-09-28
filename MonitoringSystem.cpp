@@ -45,7 +45,6 @@ public:
 
     template <class V>
     void Onsignal(V& vehicleSignal) {
-        //Give meaningful compile error if the input parameter is not a valid vehicle
         static_assert(
             std::is_base_of<Vehicle, V>::value, "The object recieved is not a valid Vehicle"
         );
@@ -134,7 +133,7 @@ public:
     }
 
 private:
-    const unsigned int RESET_INTERVAL_IN_SECONDS=300;
+    const unsigned int RESET_INTERVAL_IN_SECONDS = 300;
     const unsigned int MIN_RESET_INTERVAL_IN_MICRO_SECONDS = 40000;
     const unsigned int RESET_INTERVAL_MICROSECONDS =
         RESET_INTERVAL_IN_SECONDS < 1 ?
@@ -161,7 +160,7 @@ private:
         }
     }
     string getPlaceholderForCar(VehicleType type){
-        return type == VehicleType::CAR ? "    ":"";
+        return type == VehicleType::CAR ? "    " : "";
     }
     string getVehicleLine(const Vehicle& v){
         return v.id + " - " + VehicleTypeStrings[(int)v.type] + getPlaceholderForCar(v.type) +

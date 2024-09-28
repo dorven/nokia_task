@@ -4,9 +4,10 @@
 #include "MonitoringSystem.cpp"
 
 using namespace std;
+
 // g++ TestMonitoringSystem.cpp -Wsign-conversion -Werror -std=c++20 -o TestMonitoringSystem ../gtest/googletest/build/lib/libgtest.a
 
-const string LOGFILE="logfile.txt";
+const string LOGFILE = "logfile.txt";
 
 TEST(BasicFunctionality, EmptyStatistics) {
     MonitoringSystem m(0);
@@ -17,9 +18,9 @@ TEST(BasicFunctionality, EmptyStatistics) {
     EXPECT_EQ(m.GetStatistics(VehicleType::SCOOTER), "");
 }
 
-const string ABC001Plate="ABC-001";
-const string ABC002Plate="ABC-002";
-const string ABC003Plate="ABC-003";
+const string ABC001Plate = "ABC-001";
+const string ABC002Plate = "ABC-002";
+const string ABC003Plate = "ABC-003";
 
 TEST(BasicFunctionality, RegisterVehiclesInOrder) {
     MonitoringSystem m(0);
