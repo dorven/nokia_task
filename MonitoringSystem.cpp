@@ -32,8 +32,8 @@ enum States{
 
 class MonitoringSystem{
 public:
-    MonitoringSystem(unsigned int PROD_RESET_INTERVAL_IN_SECONDS=300, bool DEV=false):
-        PROD_RESET_INTERVAL_IN_SECONDS(PROD_RESET_INTERVAL_IN_SECONDS),DEV(DEV){
+    MonitoringSystem(unsigned int PROD_RESET_INTERVAL_IN_SECONDS=300):
+        RESET_INTERVAL_IN_SECONDS(PROD_RESET_INTERVAL_IN_SECONDS){
         logger.log(Info, "MonitoringSystem started.");
         resetThread = std::thread(&MonitoringSystem::handlePeriodicReset, this);
     }
@@ -134,11 +134,11 @@ public:
     }
 
 private:
-    bool DEV=false;  // instantiate with fast reset interval for faster testing
-    const unsigned int PROD_RESET_INTERVAL_IN_SECONDS=300;
-    const unsigned int DEV_RESET_INTERVAL_IN_MICRO_SECONDS = 40000;
-    const unsigned int PERIODIC_RESET_INTERVAL =
-        DEV ? DEV_RESET_INTERVAL_IN_MICRO_SECONDS : PROD_RESET_INTERVAL_IN_SECONDS * 1000000;
+    const unsigned int RESET_INTERVAL_IN_SECONDS=300;
+    const unsigned int MIN_RESET_INTERVAL_IN_MICRO_SECONDS = 40000;
+    const unsigned int RESET_INTERVAL_MICROSECONDS =
+        RESET_INTERVAL_IN_SECONDS == 0 ?
+            MIN_RESET_INTERVAL_IN_MICRO_SECONDS : RESET_INTERVAL_IN_SECONDS * 1000000;
     std::mutex mtx; // Periodic reset can collide with user operations so we have to lock
     std::thread resetThread;
     set<Vehicle> vehicles;
@@ -147,11 +147,12 @@ private:
     std::atomic<bool> stopFlag=false;
     void handlePeriodicReset()
     {
-        const unsigned int waitTime = DEV ? 50000 : 1000000;
+        const unsigned int waitTime =
+            RESET_INTERVAL_MICROSECONDS == MIN_RESET_INTERVAL_IN_MICRO_SECONDS ? 50000 : 1000000;
         unsigned int emplasedMicroSeconds = 0;
         while(!stopFlag){
             if(state==STOPPED) emplasedMicroSeconds=0;
-            if(emplasedMicroSeconds >= PERIODIC_RESET_INTERVAL){
+            if(emplasedMicroSeconds >= RESET_INTERVAL_MICROSECONDS){
                 Onsignal(Reset);
                 emplasedMicroSeconds = 0;
             }

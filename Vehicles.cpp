@@ -17,12 +17,12 @@ public:
     }
 protected:
     Vehicle()=delete;
-    Vehicle(VehicleType type, string id):id(id), type(type), count(1){}
+    Vehicle(VehicleType type, string id):type(type),id(id),count(1){}
 
 private:
-    mutable unsigned short count=0;
     VehicleType type;
     string id;
+    mutable unsigned short count=0;
 
     friend class MonitoringSystem;
 };
