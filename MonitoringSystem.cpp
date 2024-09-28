@@ -58,7 +58,7 @@ public:
             auto found = vehicles.find(vehicleSignal);
             if(found == vehicles.end()){
                 if(vehicles.size() < 1000){
-                    vehicles.insert(vehicleSignal);
+                    vehicles.emplace(vehicleSignal);
                 }
                 else logger.log(
                     Error,
