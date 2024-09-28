@@ -291,6 +291,26 @@ TEST(StatesAndStateChanges, ResetCanFixErrorState) {
     EXPECT_FALSE(checkLastLogLineForEntry("Error in the camera system. Cannot add: ABC-002 - Bicycle"));
 }
 
+TEST(StatesAndStateChanges, ShouldNotRecordErrorSignalInStopped) {
+    MonitoringSystem m(0);
+    m.Onsignal(Start);
+    m.Onsignal(Stop);
+    m.Onsignal();
+    Bicycle b1(ABC001Plate);
+    m.Onsignal(b1);
+    EXPECT_EQ(m.GetStatistics(), "");
+    EXPECT_EQ(m.GetErrorCount(), 0);
+}
+
+TEST(StatesAndStateChanges, ShouldNotRecordErrorSignalInInit) {
+    MonitoringSystem m(0);
+    m.Onsignal();
+    Bicycle b1(ABC001Plate);
+    m.Onsignal(b1);
+    EXPECT_EQ(m.GetStatistics(), "");
+    EXPECT_EQ(m.GetErrorCount(), 0);
+}
+
 TEST(PeriodicReset, ShouldResetPeriodically) {
     MonitoringSystem m(0);
     m.Onsignal(Start);
@@ -339,26 +359,6 @@ TEST(Edgecases, OnlySpaceVehicleIdIsNotAllowed) {
     m.Onsignal(b1);
     EXPECT_EQ(m.GetStatistics(), "");
     EXPECT_TRUE(checkLastLogLineForEntry("Vehicle ID cannot be empty."));
-}
-
-TEST(Edgecases, ShouldNotRecordErrorSignalInStopped) {
-    MonitoringSystem m(0);
-    m.Onsignal(Start);
-    m.Onsignal(Stop);
-    m.Onsignal();
-    Bicycle b1(ABC001Plate);
-    m.Onsignal(b1);
-    EXPECT_EQ(m.GetStatistics(), "");
-    EXPECT_EQ(m.GetErrorCount(), 0);
-}
-
-TEST(Edgecases, ShouldNotRecordErrorSignalInInit) {
-    MonitoringSystem m(0);
-    m.Onsignal();
-    Bicycle b1(ABC001Plate);
-    m.Onsignal(b1);
-    EXPECT_EQ(m.GetStatistics(), "");
-    EXPECT_EQ(m.GetErrorCount(), 0);
 }
 
 int main(){
