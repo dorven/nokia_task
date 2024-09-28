@@ -32,8 +32,8 @@ enum States{
 
 class MonitoringSystem{
 public:
-    MonitoringSystem(unsigned int PROD_RESET_INTERVAL_IN_SECONDS=300):
-        RESET_INTERVAL_IN_SECONDS(PROD_RESET_INTERVAL_IN_SECONDS){
+    MonitoringSystem(unsigned int RESET_INTERVAL_IN_SECONDS=300):
+        RESET_INTERVAL_IN_SECONDS(RESET_INTERVAL_IN_SECONDS){
         logger.log(Info, "MonitoringSystem started.");
         resetThread = std::thread(&MonitoringSystem::handlePeriodicReset, this);
     }
@@ -137,7 +137,7 @@ private:
     const unsigned int RESET_INTERVAL_IN_SECONDS=300;
     const unsigned int MIN_RESET_INTERVAL_IN_MICRO_SECONDS = 40000;
     const unsigned int RESET_INTERVAL_MICROSECONDS =
-        RESET_INTERVAL_IN_SECONDS == 0 ?
+        RESET_INTERVAL_IN_SECONDS < 1 ?
             MIN_RESET_INTERVAL_IN_MICRO_SECONDS : RESET_INTERVAL_IN_SECONDS * 1000000;
     std::mutex mtx; // Periodic reset can collide with user operations so we have to lock
     std::thread resetThread;
