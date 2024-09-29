@@ -6,7 +6,6 @@
 using namespace std;
 
 enum LogLevel {
-    Debug,
     Info,
     Error
 };
@@ -49,8 +48,6 @@ private:
     string levelToString(LogLevel level)
     {
         switch (level) {
-        case Debug:
-            return "DEBUG";
         case Info:
             return "INFO";
         case Error:
